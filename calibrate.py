@@ -121,7 +121,8 @@ if __name__ == '__main__':
     #            "./rosbag_data/transf5/"]
  
     # save_dirs = ["./rosbag_data/transf2/", "./rosbag_data/transf1/" ]
-    save_dirs = ["./rosbag_data/transf2/" ]
+    # save_dirs = ["./rosbag_data/transf2/" ]
+    save_dirs = [args[1] ]
 
 
     T_be_array = np.empty((1,4,4))  
@@ -150,45 +151,53 @@ if __name__ == '__main__':
 
     for i in range(len(T_eb_array)):
         eul_out_rob[i,:] =  t3d.euler.mat2euler(T_eb_array[i,0:3,0:3])
-        print(np.array(eul_out_rob)*180/np.pi,"eul_out_rob deg, robot")
 
         eul_out_camera[i,:] =  t3d.euler.mat2euler(T_zu_array[i,0:3,0:3])
-        print(np.array(eul_out_camera)*180/np.pi,"eul_out_camera deg, US camera frame")
 
     eul_out_camera = eul_out_camera*180/np.pi
     eul_out_rob = eul_out_rob*180/np.pi
+
+    ## to Visualize variance in robot data vs camera pose estimation
+
     fig = plt.figure()
     ax_handle = fig.add_subplot(111, projection='3d')
     ax_handle.scatter(eul_out_rob[:,0], eul_out_rob[:,0], eul_out_rob[:,0], label="robot eul")
     ax_handle.scatter(eul_out_camera[:,0], eul_out_camera[:,0], eul_out_camera[:,0], label="camera eul")
+    plt.title("Visualize variance in robot data vs camera pose estimation")
     plt.legend()
     plt.show()
 
 
-    R_est = np.array([[ -1, 0, 0],
-                      [ 0, 0, 1],
-                      [ 0,1, 0]])
+    # R_est = np.array([[ -1, 0, 0],
+    #                   [ 0, 0, 1],
+    #                   [ 0,1, 0]])
+
+    R_est = np.array([[ 0, 1, 0],
+                      [ 0, 0, -1],
+                      [ -1,0, 0]])
+
 
 
     # R_est = t3d.axangles.axangle2mat(np.random.rand(3,),np.random.rand())
 
-    # t_est = np.array([ -0.2, 0.0, 0.15])
+    t_est = np.array([ -0.2, 0.0, 0.15])
     # t_est = np.array([ 0.2, 0.0, 0.15])
-    t_est = np.array([ 0.12, 0.0, 0.0443])
+    # t_est = np.array([ 0.12, 0.0, 0.0443])
     # t_est = np.random.rand(3,)*0.10
     T_eu_est = create_transf_mat(R_est,t_est)
 
-    # P_z = np.array([0,0,0,1]).T
-    P_z = np.random.rand(4)*0.01   ##  a random point fixed in the z wire frame
+    P_z = np.array([0,0,0,1]).T
+    # P_z = np.random.rand(4)*0.01   ##  a random point fixed in the z wire frame
     P_z[3] = 1
     
 
     fig = plt.figure()
     ax_handle = fig.add_subplot(111, projection='3d')
     plot_frames(T_be_array ,ax_handle)
-    plot_frames([T_be_array[0]],ax_handle)
+    # plt.show()
+    # plot_frames([T_be_array[0]],ax_handle)
 
-    n_itr = 1000
+    n_itr = 10
     for i in range(n_itr):
         # fig = plt.figure()
         # ax_handle = fig.add_subplot(111, projection='3d')
@@ -228,7 +237,6 @@ if __name__ == '__main__':
         # ax_handle.scatter(Q_h_array[:,0], Q_h_array[:,1], Q_h_array[:,2],  label='Q')
         # ax_handle.quiver(P_h_array[:,0], P_h_array[:,1], P_h_array[:,2] , \
         #                  Q_h_array[:,0], Q_h_array[:,1], Q_h_array[:,2] )
-'''
 
         # for itr in range(len(P_h_array)):
         #     ax_handle.plot([P_h_array[itr,0], Q_h_array[itr,0]],\
@@ -239,9 +247,9 @@ if __name__ == '__main__':
         T_eu_est = T_eu_est.dot(create_transf_mat(R_eu,t_eu))
         T_eu_est = create_transf_mat(R_eu,t_eu)
 
-        print(T_eu_est,"T_eu_est")
         P_transf = (T_eu_est.dot(P_h_array.T)).T
 
+        print (T_eu_est,"T_eu_est")
         # ax_handle.scatter(P_transf[:,0], P_transf[:,1], P_transf[:,2],  label='P_transf')
         # ax_handle.set_aspect('equal')
 
@@ -253,9 +261,11 @@ if __name__ == '__main__':
             ax_handle.scatter(P_const_est[0],P_const_est[1],P_const_est[2], s=100) 
             plot_frame(T_be_array[0].dot(T_eu_est),ax_handle)
 
-        plt.show()
-
+        # plt.show()
+    plt.show()
     # P_const_new = p
     # print (P_const,"P_const")
+
+'''
 
 '''
