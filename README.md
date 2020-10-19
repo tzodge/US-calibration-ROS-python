@@ -10,7 +10,9 @@ This module assumes that the rosbags have unsynched pose_ee and raw image data.
 
 
 # 1. Extract, time sync and save the data
-the rosbag for \transf1 can be found at [rosbags](https://drive.google.com/drive/folders/1CdlzdJTs855xpAYpTy7xYjVWpYWExtpZ?usp=sharing)
+the rosbag for \transf1 can be found at [rosbags](https://drive.google.com/drive/folders/1CdlzdJTs855xpAYpTy7xYjVWpYWExtpZ?usp=sharing). Can be accessed from any account. 
+
+All the rosbags can be found [here](https://drive.google.com/drive/folders/10CqBUHkOhzFxc7fyiB_wbi2zcDhI4aro?usp=sharing). Access restricted to people with access to shared TRACIR drive. 
 
 Run 
 ``` python
