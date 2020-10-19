@@ -27,6 +27,11 @@ def create_directories(save_dir):
 
 		extra_files_dir = save_dir+"/extra_files" 
 		os.mkdir(extra_files_dir)	
+
+		a = np.array([])
+		txt_file_selected_images = extra_files_dir + "/selected_image_ids.txt"
+		print (txt_file_selected_images,"txt_file_selected_images")
+		np.savetxt(txt_file_selected_images,a)
 	else:
 		print ("{} already exists".format(save_dir))
 
@@ -72,6 +77,8 @@ if __name__ == '__main__':
 	args = sys.argv
 	if len(args) != 3:
 		print( "\n Usage: python process_rosbag.py <rosbag_path> <rosbag_save_path>" )
+		print ("for example \n")
+		print("python process_rosbag_clean.py ./rosbags/calibration_bag_transform5_2020-09-17-18-50-10.bag  ./rosbag_data/transf5 ")
 		sys.exit()
 	else: 
 		filename = args[1]

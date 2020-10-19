@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import sys
 import transforms3d as  t3d
+# link : https://docs.google.com/presentation/d/1E5cLrZCGC0eLe_q-Whda-CIxITOYS3GRCLCoh0wb2Lg/edit?usp=sharing
 
 def centralize_and_scale(image_coords,img_origin):
     scale_ver = 0.0953107555263 * 1e-3  # m/pix

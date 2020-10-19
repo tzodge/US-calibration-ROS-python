@@ -91,6 +91,22 @@ def select_points(im):
 '''
 image ids for transf2 80 102 125 177 255 321 363 390 490 664 738 800
 '''
+def update_selected_images(selected_images,available_images):
+	
+	### 
+	### update iamge numbers to their nearest neighbours
+	### in available images 	
+
+
+	updated_images = np.zeros((len(selected_images)))
+	for i in range(len(selected_images)):
+		dist_array = abs(available_images - selected_images[i])
+ 
+		nn_in_available = np.argmin(dist_array)
+		updated_images[i] = available_images[nn_in_available]
+
+	return updated_images.astype(np.int64)
+
 
 if __name__ == '__main__':
 	args = sys.argv
@@ -99,15 +115,23 @@ if __name__ == '__main__':
 		sys.exit()
 	save_dir = args[1]
 
-	if len(args) == 3:
-		selected_ids_txt = args[2]
-		image_numbers = np.loadtxt( selected_ids_txt , dtype=np.int64)
-	else:	
-		selected_ids_txt = save_dir + "/extra_files/selected_image_ids.txt"
- 		image_numbers = np.loadtxt(selected_ids_txt, dtype=np.int64)
+	selected_ids_txt = save_dir + "/extra_files/selected_image_ids.txt"
+	available_images_txt = save_dir + "/extra_files/available_images.txt"
 
-	 
-	for image_number in image_numbers:
+	selected_images = np.loadtxt(selected_ids_txt, dtype=np.int64)
+	available_images = np.loadtxt(available_images_txt, dtype=np.int64)
+
+	if len(selected_images) < 1:
+		print("please select images and put their respective numbers in \n")
+		print(selected_ids_txt)
+		sys.exit()
+	print(selected_images,"selected_images before")
+	# print(available_images,"available_images")
+	selected_images = update_selected_images(selected_images,available_images)
+	print(selected_images,"selected_images after")
+	np.savetxt(selected_ids_txt,selected_images,fmt='%i')
+
+	for image_number in selected_images:
 		print (image_number,"image_number")
 
 		im_path =  save_dir + "/calib_images" + "/image_{}.jpg".format(image_number)
@@ -117,4 +141,6 @@ if __name__ == '__main__':
 		np.savetxt( save_file,wire_pixel_np)
 		cv2.destroyAllWindows() 
 
+'''
+'''
 
