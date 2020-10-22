@@ -107,7 +107,7 @@ def main():
 	marker_pub_phantom = rospy.Publisher('z_wire_phantom', Marker, queue_size = 1)
 	robo_sub = message_filters.Subscriber('/pose_ee', TransformStamped)
 	ultrasound_sub = message_filters.Subscriber('/ultrasound/image_raw', Image)
-	ts = message_filters.ApproximateTimeSynchronizer([robo_sub, ultrasound_sub], 10, 1/15)
+	ts = message_filters.ApproximateTimeSynchronizer([robo_sub, ultrasound_sub], 10, 1/30)
 	ts.registerCallback(_sync_cb)
 
 	last_im_points = np.zeros((9,2))
@@ -195,10 +195,13 @@ def main():
 
 		cv2.imshow('Ultrasound Image',_ultrasound_image)
 		cv2.setMouseCallback('Ultrasound Image', on_click)
-		k = cv2.waitKey(1) & 0xFF
-		if k == 27:
+		k = cv2.waitKey(1)
+		if k & 0xFF == 27:
 			break
-
+		if k == ord('c'):
+			points_tracked = [False for p in points_tracked]
+			last_im_points = np.zeros((9,2))
+			last_tracked = 100
 		_new_pose_available = False
 		# if last_im_points is None:
 		# 	last_im_points = select_points(_ultrasound_image)
