@@ -65,7 +65,7 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     return rightMin + (valueScaled * rightSpan)
 
 def img_3d_coords_zFrame (image_coords_cent ): 
-    ic = image_coords_cent
+    ic = np.array(image_coords_cent).astype(float)
     assert(len(ic) == 9)
     z_wire_coords = np.zeros((9, 3))
 
@@ -112,7 +112,7 @@ def img_3d_coords_zFrame (image_coords_cent ):
         else:
             z_wire_coords[left][0]  = z_wire_coords[idx][0] - np.sqrt(z_wire_ldistsq)
             z_wire_coords[right][0] = z_wire_coords[idx][0] + np.sqrt(z_wire_rdistsq)
-
+    # TODO: check whether z-wire is turned the right way
     return z_wire_coords
 
 def angle_between_vec(v1,v2):

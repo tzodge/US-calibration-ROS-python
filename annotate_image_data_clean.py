@@ -28,7 +28,7 @@ def find_centroids(im):
 
 		color = np.random.rand(3,)*255
 
-		centroid = (contour.mean(axis=0,dtype=np.int64)).flatten() 
+		centroid = (contour.astype(float).mean(axis=0)).flatten() 
 
 		# cv2.drawContours(im, contour, -1, color=color, thickness=2) 
 
@@ -59,7 +59,7 @@ def select_points(im):
 		# print(contour.shape,"contour.shape")
 
 		color = np.random.rand(3,)*255
-		cv2.circle(im, (centroid[0],centroid[1]), 5, color=color,thickness=2)
+		cv2.circle(im, (int(centroid[0]),int(centroid[1])), 5, color=color,thickness=2)
 
 	# cv2.imshow('Contours', im) 
 	nn_old = [-1,-1]
@@ -71,8 +71,11 @@ def select_points(im):
 		
 		nn_new = find_closest_point(centroid_array, [_ix, _iy])
 		# print(nn_new,"nn_new")
-		im = cv2.rectangle(im,(nn_new[0]-3,nn_new[1]+3),(nn_new[0]+3,nn_new[1]-3),(0,255,0),3)
-		if (nn_new != nn_old).any():
+		im = cv2.rectangle(im,(int(nn_new[0]-3),
+							   int(nn_new[1]+3)),
+							  (int(nn_new[0]+3),
+							  	int(nn_new[1]-3)),(0,255,0),3)
+		if np.any(np.all(np.isclose(nn_new,nn_old), axis=1)):
 			nn_old = nn_new
 			wire_pixels.append(nn_old)
 

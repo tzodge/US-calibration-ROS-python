@@ -106,7 +106,7 @@ def main():
 	marker_pub = rospy.Publisher('z_wire_pose', Marker, queue_size = 1)
 	marker_pub_phantom = rospy.Publisher('z_wire_phantom', Marker, queue_size = 1)
 	robo_sub = message_filters.Subscriber('/pose_ee', TransformStamped)
-	ultrasound_sub = message_filters.Subscriber('/camera/image_raw', Image)
+	ultrasound_sub = message_filters.Subscriber('/ultrasound/image_raw', Image)
 	ts = message_filters.ApproximateTimeSynchronizer([robo_sub, ultrasound_sub], 10, 1/15)
 	ts.registerCallback(_sync_cb)
 
@@ -121,6 +121,7 @@ def main():
 	# 				  [727, 468],
 	# 				  [794, 469]]
 	points_tracked = [False] * 9
+	last_tracked = 100
 	rate = rospy.Rate(30)
 	centroids = []
 
@@ -149,7 +150,9 @@ def main():
 		centroids = find_centroids(_ultrasound_image)
 
 		for pt in centroids:
-			cv2.circle(_ultrasound_image, tuple(pt), 3, color=(255,0,0), thickness=1)
+			cv2.circle(_ultrasound_image, tuple(pt.astype(int)), 3, color=(255,0,0), thickness=1)
+
+		last_points_tracked = [b for b in points_tracked]
 
 		for idx, pt in enumerate(last_im_points):
 			if points_tracked[idx]:
@@ -158,10 +161,21 @@ def main():
 					last_im_points[idx] = new_pt
 				else:
 					points_tracked[idx] = False
+
+		# Detect glitch frames
+		if last_tracked < 10 and sum(points_tracked) == 0:
+			last_tracked = last_tracked + 1
+			points_tracked = [b for b in last_points_tracked]
+			_new_pose_available = False
+			rospy.loginfo("Possible ultrasound glitch. Skipping frame.")
+			continue
+		elif sum(points_tracked) > 0:
+			last_tracked = 0
+
 		if np.sum(np.equal(points_tracked, True))  == len(points_tracked):
 			im_points = centralize_and_scale(np.array(last_im_points), np.array([388,134]))
 			coords_3d = img_3d_coords_zFrame(im_points)
-			print(last_im_points, im_points, coords_3d)
+			# print(last_im_points, im_points, coords_3d)
 			if coords_3d is not None:
 				pos = find_img_frame_position(im_points, coords_3d)
 				rot = find_img_frame_axis(im_points, coords_3d)
@@ -170,12 +184,14 @@ def main():
 				T[0:3, 3] = pos
 				marker_pub.publish(make_pose_marker(T, 10))
 		colors = [np.random.rand(3,)*255 for x in last_im_points]
-		for pt, tracked in zip(last_im_points, points_tracked):
+		for idx, pt, tracked in zip(range(9), last_im_points, points_tracked):
 			if tracked:
 				color = (0,255,0)
 			else:
 				color = (0,0,255)
+			cv2.putText(_ultrasound_image, str(idx + 1), (int(pt[0]) + 10, int(pt[1]) + 5), cv2.FONT_HERSHEY_SIMPLEX, .5, color=color) 
 			cv2.circle(_ultrasound_image, tuple([int(x) for x in pt]), 5, color=color,thickness=2)
+
 
 		cv2.imshow('Ultrasound Image',_ultrasound_image)
 		cv2.setMouseCallback('Ultrasound Image', on_click)
