@@ -45,11 +45,21 @@ python frame_from_coords_clean.py ./rosbag_data/transf1/
 
 ```
 
-# 5. Calibrate
-Run 
+# 5. Hand eye calbration
+This part uses open source code provide by  ETHZ-asl on [Git repository](https://github.com/ethz-asl/hand_eye_calibration)  
+
+To generate synthetic data and experiment with hand-eye calibration, run  
 ``` python
-python calibrate.py ./rosbag_data/transf1/
+python generate_synth_data.py
+
+python compute_hand_eye_calibration.py \
+--aligned_poses_B_H_csv_file temp_quat_csv/T_be_array.csv \
+--aligned_poses_W_E_csv_file temp_quat_csv/T_zu_array.csv \
+--visualize=True \
+--plot_every_nth_pose 1
 
 ```
+Note that the convention for a variable denoted in eth's work is reverse from ours
 
-test git issues
+so the out pose_H_E should be same as T_ue_gt_inv
+
